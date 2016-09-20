@@ -1,7 +1,36 @@
 #!/bin/bash
 
+local_branch() {
+  git name-rev --name-only HEAD
+}
+
+tracking_remote() {
+  git config branch."$(local_branch)".remote
+}
+
+tracking_branch() {
+  git config branch."$(local_branch)".merge | cut -d / -f 3
+}
+
 shmart_log() {
   git log --pretty="format:%C(yellow)%h%Cblue%d%Creset %s %C(white) %an, %ar%Creset" \
           --graph \
           "$@"
+}
+
+shmart_pull() {
+  echo "Executing: git fetch origin"
+  git fetch origin
+
+  CURRENT_BRANCH=$(local_branch)
+  UPSTREAM_BRANCH=$(tracking_remote)/$(tracking_branch)
+  HEAD=$(git rev-parse HEAD)
+  REMOTE=$(git rev-parse "$UPSTREAM_BRANCH")
+
+  if [ "$HEAD" == "$REMOTE" ]
+  then
+    echo "Neither your local branch '$CURRENT_BRANCH', nor the remote branch '$UPSTREAM_BRANCH' have moved on."
+  fi
+
+  git pull
 }

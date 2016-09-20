@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+setUp() {
+  if [[ $(pwd) == *sandbox ]]; then
+    cd ..
+  fi
+
+  rm -rf sandbox
+  mkdir sandbox
+  cd sandbox
+  git init > /dev/null
+}
+
+# shellcheck disable=SC2013
+suite() {
+  for test_name in $(grep '^it_' "$0" | cut -d '(' -f 1); do
+    suite_addTest "$test_name"
+  done
+}
+
+# shellcheck disable=SC1091
+. ./shunit2/2.1/src/shunit2
