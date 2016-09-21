@@ -2,14 +2,13 @@
 
 set -e
 
-setUp() {
-  if [[ $(pwd) == *sandbox ]]; then
-    cd ..
-  fi
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-  rm -rf sandbox
-  mkdir sandbox
-  cd sandbox
+setUp() {
+  cd "$DIR"
+  rm -rf "$DIR"/sandbox
+  mkdir "$DIR"/sandbox
+  cd "$DIR"/sandbox
   git init > /dev/null
 }
 
@@ -20,5 +19,5 @@ suite() {
   done
 }
 
-# shellcheck disable=SC1091
-. ./shunit2/2.1/src/shunit2
+# shellcheck disable=SC1090
+. "$DIR"/shunit2/2.1/src/shunit2

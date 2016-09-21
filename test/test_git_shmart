@@ -2,8 +2,10 @@
 
 set -e
 
-# shellcheck disable=SC1091
-. ../git-shmart
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# shellcheck disable=SC1090
+. "$DIR"/../git-shmart
 
 it_does_nothing_when_up_to_date() {
   mkdir local remote
@@ -29,5 +31,5 @@ Already up-to-date."
   assertEquals "$EXPECTED" "$(shmart_pull)"
 }
 
-# shellcheck disable=SC1091
-. test_helper
+# shellcheck disable=SC1090
+. "$DIR"/test_helper
