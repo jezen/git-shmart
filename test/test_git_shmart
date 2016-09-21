@@ -31,5 +31,12 @@ Already up-to-date."
   assertEquals "$EXPECTED" "$(shmart_pull)"
 }
 
+it_warns_when_not_in_a_git_repo() {
+  rm -rf .git
+  EXPECTED="You need to run this from within a Git directory.
+Current working directory: $(pwd)"
+  assertEquals "$EXPECTED" "$(shmart_pull)"
+}
+
 # shellcheck disable=SC1090
 . "$DIR"/test_helper

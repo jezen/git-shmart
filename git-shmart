@@ -12,15 +12,23 @@ tracking_branch() {
   git config branch."$(local_branch)".merge | cut -d / -f 3
 }
 
-shmart_log() {
-  git log --pretty="format:%C(yellow)%h%Cblue%d%Creset %s %C(white) %an, %ar%Creset" \
-          --graph \
-          "$@"
+warn_when_not_in_git_repo() {
+  if [ "$(git status > /dev/null 2>&1; echo $?)" != "0" ]
+  then
+    echo "You need to run this from within a Git directory."
+    echo "Current working directory: $(pwd)"
+    exit 1
+  fi
+}
+
+fetch() {
+  echo "Executing: git fetch origin"
+  git fetch origin
 }
 
 shmart_pull() {
-  echo "Executing: git fetch origin"
-  git fetch origin
+  warn_when_not_in_git_repo
+  fetch
 
   CURRENT_BRANCH=$(local_branch)
   UPSTREAM_BRANCH=$(tracking_remote)/$(tracking_branch)
@@ -33,4 +41,10 @@ shmart_pull() {
   fi
 
   git pull
+}
+
+shmart_log() {
+  git log --pretty="format:%C(yellow)%h%Cblue%d%Creset %s %C(white) %an, %ar%Creset" \
+          --graph \
+          "$@"
 }
