@@ -5,11 +5,15 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 setUp() {
-  cd "$DIR"
-  rm -rf "$DIR"/sandbox
-  mkdir "$DIR"/sandbox
-  cd "$DIR"/sandbox
+  cd
+  rm -rf /tmp/git_shmart_sandbox
+  mkdir -p /tmp/git_shmart_sandbox
+  cd /tmp/git_shmart_sandbox
   git init > /dev/null
+}
+
+oneTimeTearDown() {
+  rm -rf /tmp/git_shmart_sandbox
 }
 
 # shellcheck disable=SC2013
