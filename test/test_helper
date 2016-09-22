@@ -3,17 +3,39 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SANDBOX="/tmp/git_shmart_sandbox"
+
+build_remote_repo() {
+  mkdir -p $SANDBOX/remote
+  cd "$_"
+  git init > /dev/null
+  git config --local user.name 'Remote User'
+  git config --local user.email 'remote@example.com'
+  git config --local core.pager 'cat'
+  echo 'foo' > README
+  git add .
+  git commit -qm 'first'
+}
+
+build_local_repo() {
+  mkdir -p $SANDBOX/local
+  git clone -q $SANDBOX/remote/.git "$_"
+  cd "$_"
+  git config --local user.name 'Local User'
+  git config --local user.email 'local@example.com'
+  git config --local core.pager 'cat'
+}
 
 setUp() {
   cd
-  rm -rf /tmp/git_shmart_sandbox
-  mkdir -p /tmp/git_shmart_sandbox
-  cd /tmp/git_shmart_sandbox
-  git init > /dev/null
+  rm -rf $SANDBOX
+  build_remote_repo
+  build_local_repo
+  cd $SANDBOX/local
 }
 
 oneTimeTearDown() {
-  rm -rf /tmp/git_shmart_sandbox
+  rm -rf $SANDBOX
 }
 
 # shellcheck disable=SC2013

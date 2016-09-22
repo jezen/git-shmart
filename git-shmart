@@ -12,12 +12,37 @@ tracking_branch() {
   git config branch."$(local_branch)".merge | cut -d / -f 3
 }
 
+merge_base() {
+  git merge-base "$1" "$2"
+}
+
 warn_when_not_in_git_repo() {
   if [ "$(git status > /dev/null 2>&1; echo $?)" != "0" ]
   then
     echo "You need to run this from within a Git directory."
     echo "Current working directory: $(pwd)"
     exit 1
+  fi
+}
+
+abort_when_up_to_date() {
+  if [ "$HEAD" == "$REMOTE" ]
+  then
+    echo "Neither your local branch '$CURRENT_BRANCH', nor the remote branch '$UPSTREAM_BRANCH' have moved on."
+    echo "Already up-to-date."
+    exit 0
+  fi
+}
+
+report_local_commits() {
+  N=$(echo "$NEW_COMMITS_LOCALLY" | wc -l | xargs)
+  [[ $N == 1 ]] && C="commit" || C="commits"
+
+  echo "You have $N new $C on 'master'."
+
+  if [ "$MERGE_BASE" == "$REMOTE" ]
+  then
+    echo "Remote branch '$UPSTREAM_BRANCH' has not moved on."
   fi
 }
 
@@ -35,10 +60,12 @@ shmart_pull() {
   HEAD=$(git rev-parse HEAD)
   REMOTE=$(git rev-parse "$UPSTREAM_BRANCH")
 
-  if [ "$HEAD" == "$REMOTE" ]
-  then
-    echo "Neither your local branch '$CURRENT_BRANCH', nor the remote branch '$UPSTREAM_BRANCH' have moved on."
-  fi
+  abort_when_up_to_date
+
+  MERGE_BASE=$(merge_base "$HEAD" "$REMOTE")
+  NEW_COMMITS_LOCALLY=$(git rev-list "$MERGE_BASE"..HEAD)
+
+  report_local_commits
 
   git pull
 }
