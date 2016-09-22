@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # shellcheck disable=SC1090
@@ -44,6 +42,51 @@ You have 2 new commits on 'master'.
 Remote branch 'origin/master' has not moved on.
 Already up-to-date."
   assertEquals "$EXPECTED" "$(shmart_pull)"
+}
+
+# shellcheck disable=SC2016
+it_fast_forwards_remote_changes() {
+  (cd ../remote && append_and_commit)
+
+  # shellcheck disable=SC2034
+  A=$(shmart_pull)
+
+  assertTrue 'reports fetch' \
+    '[[ $A =~ "Executing: git fetch origin" ]]'
+  assertTrue 'reports new commit' \
+    '[[ $A =~ "There is 1 new commit on '\''origin/master'\''." ]]'
+  assertTrue 'reports not moved on' \
+    '[[ $A =~ "Local branch '\''master'\'' has not moved on. Fast-forwarding..." ]]'
+  assertTrue 'reports fast-forward' \
+    '[[ $A =~ "Executing: git merge --ff-only origin/master" ]]'
+}
+
+it_does_not_stash_before_fast_forward_with_untracked_files() {
+  true
+}
+
+it_stashes_fast_forwards_and_pops_with_local_changes() {
+  true
+}
+
+it_rebases_diverged_branches() {
+  true
+}
+
+it_does_not_stash_before_rebase_with_untracked_files() {
+  true
+}
+
+it_stashes_rebases_and_pops_with_local_uncommited_changes() {
+  true
+}
+
+it_pulls_a_repo_containing_a_submodule() {
+  true
+}
+
+it_pulls_a_submodule() {
+  true
 }
 
 # shellcheck disable=SC1090

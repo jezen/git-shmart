@@ -1,12 +1,10 @@
 #!/bin/bash
 
-set -e
-
 SANDBOX="/tmp/git_shmart_sandbox"
 
 build_remote_repo() {
   mkdir -p $SANDBOX/remote
-  cd "$_"
+  cd "$_" || exit
   git init > /dev/null
   git config --local user.name 'Remote User'
   git config --local user.email 'remote@example.com'
@@ -19,18 +17,18 @@ build_remote_repo() {
 build_local_repo() {
   mkdir -p $SANDBOX/local
   git clone -q $SANDBOX/remote/.git "$_"
-  cd "$_"
+  cd "$_" || exit
   git config --local user.name 'Local User'
   git config --local user.email 'local@example.com'
   git config --local core.pager 'cat'
 }
 
 setUp() {
-  cd
+  cd || exit
   rm -rf $SANDBOX
   build_remote_repo
   build_local_repo
-  cd $SANDBOX/local
+  cd $SANDBOX/local || exit
 }
 
 oneTimeTearDown() {
