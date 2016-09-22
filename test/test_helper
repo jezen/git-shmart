@@ -2,7 +2,6 @@
 
 set -e
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SANDBOX="/tmp/git_shmart_sandbox"
 
 build_remote_repo() {
@@ -45,5 +44,5 @@ suite() {
   done
 }
 
-# shellcheck disable=SC1090
-. "$DIR"/shunit2/2.1/src/shunit2
+# shellcheck disable=SC1091
+. shunit2
