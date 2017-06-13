@@ -61,8 +61,20 @@ it_fast_forwards_remote_changes() {
     '[[ $A =~ "Executing: git merge --ff-only origin/master" ]]'
 }
 
+# shellcheck disable=SC2016
 it_does_not_stash_before_fast_forward_with_untracked_files() {
-  true
+  (cd ../remote && append_and_commit)
+  echo "foo" > bar
+  assertEquals "?? bar" "$(git status --short)"
+
+  # shellcheck disable=SC2034
+  A=$(shmart_pull)
+
+  assertTrue 'reports fast-forward' \
+    '[[ $A =~ "Executing: git merge --ff-only origin/master" ]]'
+  assertTrue 'reports changeset' \
+    '[[ $A =~ "1 file changed, 1 insertion(+)" ]]'
+  assertEquals "?? bar" "$(git status --short)"
 }
 
 it_stashes_fast_forwards_and_pops_with_local_changes() {
