@@ -107,7 +107,10 @@ shmart_pull() {
     echo "Executing: git merge --ff-only $UPSTREAM_BRANCH"
     git merge --ff-only "$UPSTREAM_BRANCH"
   else
-    true
+    echo "Both local and remote branches have moved on. Branch 'master' needs
+    to be rebased onto 'origin/master'"
+    echo "Executing: git rebase -p $UPSTREAM_BRANCH"
+    git rebase -p "$UPSTREAM_BRANCH" 2>&1
   fi
 
   if [[ "$STASH_REQUIRED" = 1 ]]; then

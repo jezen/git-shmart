@@ -5,10 +5,22 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # shellcheck disable=SC1090
 . "$DIR"/../git-shmart
 
-append_and_commit() {
-  echo 'foo' >> README
+append_and_commit_readme_remotely() {
+  echo "foo" >> README
   git add .
-  git commit -qm 'add foo'
+  git commit -qm "remote changes"
+}
+
+append_and_commit_readme_locally() {
+  echo "foo" >> README
+  git add .
+  git commit -qm "local changes"
+}
+
+append_and_commit_codes() {
+  echo "foo" >> lib/codes
+  git add .
+  git commit -qm "local changes"
 }
 
 it_does_nothing_when_up_to_date() {
@@ -26,7 +38,7 @@ Current working directory: $(pwd)"
 }
 
 it_reports_no_remote_changes_and_one_local_change() {
-  append_and_commit
+  append_and_commit_readme_locally
   EXPECTED="Executing: git fetch origin
 You have 1 new commit on 'master'.
 Remote branch 'origin/master' has not moved on.
@@ -35,8 +47,8 @@ Already up-to-date."
 }
 
 it_reports_no_remote_changes_and_many_local_changes() {
-  append_and_commit
-  append_and_commit
+  append_and_commit_readme_locally
+  append_and_commit_readme_locally
   EXPECTED="Executing: git fetch origin
 You have 2 new commits on 'master'.
 Remote branch 'origin/master' has not moved on.
@@ -46,7 +58,7 @@ Already up-to-date."
 
 # shellcheck disable=SC2016
 it_fast_forwards_remote_changes() {
-  (cd ../remote && append_and_commit)
+  (cd ../remote && append_and_commit_readme_remotely)
 
   # shellcheck disable=SC2034
   A=$(shmart_pull)
@@ -63,7 +75,7 @@ it_fast_forwards_remote_changes() {
 
 # shellcheck disable=SC2016
 it_does_not_stash_before_fast_forward_with_untracked_files() {
-  (cd ../remote && append_and_commit)
+  (cd ../remote && append_and_commit_readme_remotely)
   echo "foo" > foo
   assertEquals "?? foo" "$(git status --short)"
 
@@ -79,7 +91,7 @@ it_does_not_stash_before_fast_forward_with_untracked_files() {
 
 # shellcheck disable=SC2016
 it_stashes_fast_forwards_and_pops_with_local_and_remote_changes() {
-  (cd ../remote && append_and_commit)
+  (cd ../remote && append_and_commit_readme_remotely)
   echo "foo" > foo
   echo "bar" >> lib/codes
   git add foo
@@ -105,15 +117,28 @@ it_stashes_fast_forwards_and_pops_with_local_and_remote_changes() {
   assertEquals "$EXPECTED" "$(git status --short)"
 }
 
-#it_rebases_diverged_branches() {
-  #true
-  #assertTrue 'reports rebase' \
-    #'[[ $A =~ "Branch '"'"'master'"'"' needs to be rebased onto '"'"'origin/master'"'"'" ]]'
-  #assertTrue 'reports rebase' \
-    #'[[ $A =~ "Executing: git rebase -p origin/master" ]]'
-  #assertTrue 'reports successful rebase' \
-    #'[[ $A =~ "Successfully rebased and updated refs/heads/master." ]]'
-#}
+# shellcheck disable=SC2016
+it_rebases_diverged_branches() {
+  (cd ../remote && append_and_commit_readme_remotely)
+  append_and_commit_codes
+
+  # shellcheck disable=SC2034
+  A=$(shmart_pull)
+
+  assertTrue "reports fetch" \
+    "[[ \"$A\" =~ 'Executing: git fetch origin' ]]"
+  assertTrue "reports new remote commit" \
+    "[[ \"$A\" =~ 'There is 1 new commit' ]]"
+  assertTrue 'reports new local commit' \
+    '[[ $A =~ "You have 1 new commit on" ]]'
+  assertTrue 'reports need for rebase' \
+    '[[ $A =~ "Both local and remote branches have moved on." ]]'
+  assertTrue 'reports rebase' \
+    '[[ $A =~ "Executing: git rebase -p origin/master" ]]'
+  assertTrue 'reports successful rebase' \
+    '[[ $A =~ "Successfully rebased and updated refs/heads/master." ]]'
+  assertEquals "local changes remote changes first" "$(git log --pretty=format:%s | xargs)"
+}
 
 #it_does_not_stash_before_rebase_with_untracked_files() {
   #true
