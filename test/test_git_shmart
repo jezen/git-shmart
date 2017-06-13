@@ -122,7 +122,6 @@ it_rebases_diverged_branches() {
   (cd ../remote && append_and_commit_readme_remotely)
   append_and_commit_codes
 
-  # shellcheck disable=SC2034
   A=$(shmart_pull)
 
   assertTrue "reports fetch" \
@@ -146,7 +145,6 @@ it_does_not_stash_before_rebase_with_diverged_branches_and_untracked_files() {
   echo "foo" > foo
   assertEquals "?? foo" "$(git status --short)"
 
-  # shellcheck disable=SC2034
   A=$(shmart_pull)
 
   assertTrue 'reports rebase' \
@@ -157,9 +155,30 @@ it_does_not_stash_before_rebase_with_diverged_branches_and_untracked_files() {
   assertEquals "local changes remote changes first" "$(git log --pretty=format:%s | xargs)"
 }
 
-#it_stashes_rebases_and_pops_with_local_uncommited_changes() {
-  #true
-#}
+# shellcheck disable=SC2016
+it_stashes_rebases_and_pops_with_local_uncommited_changes_and_diverged_branches() {
+  (cd ../remote && append_and_commit_readme_remotely)
+  append_and_commit_codes
+  echo "foo" > foo
+  echo "bar" >> lib/codes
+  git add foo
+  EXPECTED="A  foo
+ M lib/codes"
+  assertEquals "$EXPECTED" "$(git status --short)"
+
+  A=$(shmart_pull)
+
+  assertTrue 'reports dirty index' \
+    '[[ $A =~ "Working directory dirty. Stashing..." ]]'
+  assertTrue 'reports stash' \
+    '[[ $A =~ "Executing: git stash" ]]'
+  assertTrue 'reports rebase' \
+    '[[ $A =~ "Executing: git rebase -p origin/master" ]]'
+  assertTrue 'reports successful rebase' \
+    '[[ $A =~ "Successfully rebased and updated refs/heads/master." ]]'
+  assertEquals "$EXPECTED" "$(git status --short)"
+  assertEquals "local changes remote changes first" "$(git log --pretty=format:%s | xargs)"
+}
 
 #it_pulls_a_repo_containing_a_submodule() {
   #true
