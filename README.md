@@ -15,10 +15,18 @@ be no longer maintained.
 
 ### Installation
 
-Stick [`git-shmart`][1] somewhere on your path, and source it from your shell's
-_run commands_ file.
+Stick each of the `git-shmart` scripts somewhere on your path. Be sure to keep
+the name of each script as-is. If you get permission errors when running the
+commands, be sure to change their modes to executable.
 
-Then, add the _git-shmart_ functions as aliases in your `~/.gitconfig` file.
+```sh
+chmod u+x ~/.bin/git-shmart-log
+chmod u+x ~/.bin/git-shmart-pull
+chmod u+x ~/.bin/git-shmart-merge
+```
+
+For convenience, you should add the _git-shmart_ functions as aliases in your
+`~/.gitconfig` file.
 
 ```sh
 # ~/.gitconfig
@@ -31,9 +39,22 @@ Then, add the _git-shmart_ functions as aliases in your `~/.gitconfig` file.
 
 ### Usage
 
-The _git-shmart_ commands can be used like any other Git alias.
+The _git-shmart_ commands should be ready to use like any other Git command,
+assuming the scripts are available on your path, and you kept the file names as
+they were.
+
+If you installed all three scripts, then you should have the following three commands:
 
 ```sh
+git shmart-log
+git shmart-pull
+git shmart-merge
+```
+
+If you set up aliases in your `~/.gitconfig`, then those should work too.
+
+```sh
+# Expands to git shmart-log
 git sl
 ```
 
@@ -56,4 +77,3 @@ make test
 ```
 
 [0]: https://github.com/geelen/git-smart
-[1]: https://github.com/jezen/git-shmart/blob/master/git-shmart
