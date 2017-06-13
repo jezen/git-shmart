@@ -1,4 +1,4 @@
 .PHONY: test
 
 test:
-	sh ./test/test_git_shmart
+	sh ./test/test_smart_pull
