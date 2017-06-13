@@ -64,8 +64,8 @@ it_fast_forwards_remote_changes() {
 # shellcheck disable=SC2016
 it_does_not_stash_before_fast_forward_with_untracked_files() {
   (cd ../remote && append_and_commit)
-  echo "foo" > bar
-  assertEquals "?? bar" "$(git status --short)"
+  echo "foo" > foo
+  assertEquals "?? foo" "$(git status --short)"
 
   # shellcheck disable=SC2034
   A=$(shmart_pull)
@@ -74,32 +74,62 @@ it_does_not_stash_before_fast_forward_with_untracked_files() {
     '[[ $A =~ "Executing: git merge --ff-only origin/master" ]]'
   assertTrue 'reports changeset' \
     '[[ $A =~ "1 file changed, 1 insertion(+)" ]]'
-  assertEquals "?? bar" "$(git status --short)"
+  assertEquals "?? foo" "$(git status --short)"
 }
 
-it_stashes_fast_forwards_and_pops_with_local_changes() {
-  true
+# shellcheck disable=SC2016
+it_stashes_fast_forwards_and_pops_with_local_and_remote_changes() {
+  (cd ../remote && append_and_commit)
+  echo "foo" > foo
+  echo "bar" >> lib/codes
+  git add foo
+  EXPECTED="A  foo
+ M lib/codes"
+  assertEquals "$EXPECTED" "$(git status --short)"
+
+  # shellcheck disable=SC2034
+  A=$(shmart_pull)
+
+  assertTrue 'reports dirty index' \
+    '[[ $A =~ "Working directory dirty. Stashing..." ]]'
+  assertTrue 'reports stash' \
+    '[[ $A =~ "Executing: git stash" ]]'
+  assertTrue 'reports fast-forward' \
+    '[[ $A =~ "Executing: git merge --ff-only origin/master" ]]'
+  assertTrue 'reports changeset' \
+    '[[ $A =~ "1 file changed, 1 insertion(+)" ]]'
+  assertTrue 'reports intent to reapply local changes' \
+    '[[ $A =~ "Reapplying local changes..." ]]'
+  assertTrue 'reports pop' \
+    '[[ $A =~ "Executing: git stash pop" ]]'
+  assertEquals "$EXPECTED" "$(git status --short)"
 }
 
-it_rebases_diverged_branches() {
-  true
-}
+#it_rebases_diverged_branches() {
+  #true
+  #assertTrue 'reports rebase' \
+    #'[[ $A =~ "Branch '"'"'master'"'"' needs to be rebased onto '"'"'origin/master'"'"'" ]]'
+  #assertTrue 'reports rebase' \
+    #'[[ $A =~ "Executing: git rebase -p origin/master" ]]'
+  #assertTrue 'reports successful rebase' \
+    #'[[ $A =~ "Successfully rebased and updated refs/heads/master." ]]'
+#}
 
-it_does_not_stash_before_rebase_with_untracked_files() {
-  true
-}
+#it_does_not_stash_before_rebase_with_untracked_files() {
+  #true
+#}
 
-it_stashes_rebases_and_pops_with_local_uncommited_changes() {
-  true
-}
+#it_stashes_rebases_and_pops_with_local_uncommited_changes() {
+  #true
+#}
 
-it_pulls_a_repo_containing_a_submodule() {
-  true
-}
+#it_pulls_a_repo_containing_a_submodule() {
+  #true
+#}
 
-it_pulls_a_submodule() {
-  true
-}
+#it_pulls_a_submodule() {
+  #true
+#}
 
 # shellcheck disable=SC1090
 . "$DIR"/test_helper

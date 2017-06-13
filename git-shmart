@@ -64,6 +64,18 @@ fetch() {
   git fetch origin > /dev/null 2>&1
 }
 
+_git_stash() {
+  echo "Working directory dirty. Stashing..."
+  echo "Executing: git stash"
+  git stash
+}
+
+_git_stash_pop() {
+  echo "Reapplying local changes..."
+  echo "Executing: git stash pop"
+  git stash pop
+}
+
 shmart_pull() {
   warn_when_not_in_git_repo
   fetch
@@ -82,12 +94,23 @@ shmart_pull() {
   abort_when_upstream_has_not_moved_on
   report_remote_commits
 
-  if [ "$MERGE_BASE" == "$HEAD" ]
+  git diff --no-ext-diff --quiet --exit-code
+  STASH_REQUIRED=$?
+
+  if [[ "$STASH_REQUIRED" = 1 ]]; then
+    _git_stash
+  fi
+
+  if [[ "$MERGE_BASE" == "$HEAD" ]]
   then
     echo "Local branch '$CURRENT_BRANCH' has not moved on. Fast-forwarding..."
     echo "Executing: git merge --ff-only $UPSTREAM_BRANCH"
     git merge --ff-only "$UPSTREAM_BRANCH"
   else
     true
+  fi
+
+  if [[ "$STASH_REQUIRED" = 1 ]]; then
+    _git_stash_pop
   fi
 }

@@ -9,7 +9,9 @@ build_remote_repo() {
   git config --local user.name 'Remote User'
   git config --local user.email 'remote@example.com'
   git config --local core.pager 'cat'
-  echo 'foo' > README
+  echo "foo" > README
+  mkdir lib
+  echo "bar" > lib/codes
   git add .
   git commit -qm 'first'
 }
