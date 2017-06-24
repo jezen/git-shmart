@@ -11,7 +11,10 @@ Ruby versions. I don't think this tool needs Ruby as a dependency.
 Also, there are some issues with the original, and the original project seems to
 be no longer maintained.
 
-_n.b._ The `shmart-merge` command still isn't implemented.
+#### TODO
+
+- Implement `shmart-merge` command
+- Add to homebrew for easier installation
 
 ### Usage
 
