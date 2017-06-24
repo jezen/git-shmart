@@ -112,5 +112,7 @@ shmart_pull() {
   fi
 
   [[ "$STASH_REQUIRED" = 1 ]] && git_stash_pop
+
+  git shmart-log "$MERGE_BASE".."$UPSTREAM_BRANCH"
 }
 
