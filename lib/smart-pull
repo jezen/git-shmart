@@ -64,13 +64,13 @@ fetch() {
   git fetch origin > /dev/null 2>&1
 }
 
-_git_stash() {
+git_stash() {
   echo "Working directory dirty. Stashing..."
   echo "Executing: git stash"
   git stash
 }
 
-_git_stash_pop() {
+git_stash_pop() {
   echo "Reapplying local changes..."
   echo "Executing: git stash pop"
   git stash pop
@@ -97,9 +97,7 @@ shmart_pull() {
   git diff --no-ext-diff --quiet --exit-code
   STASH_REQUIRED=$?
 
-  if [[ "$STASH_REQUIRED" = 1 ]]; then
-    _git_stash
-  fi
+  [[ "$STASH_REQUIRED" = 1 ]] && git_stash
 
   if [[ "$MERGE_BASE" == "$HEAD" ]]
   then
@@ -113,8 +111,6 @@ shmart_pull() {
     git rebase -p "$UPSTREAM_BRANCH" 2>&1
   fi
 
-  if [[ "$STASH_REQUIRED" = 1 ]]; then
-    _git_stash_pop
-  fi
+  [[ "$STASH_REQUIRED" = 1 ]] && git_stash_pop
 }
 
